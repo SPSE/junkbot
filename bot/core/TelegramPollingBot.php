@@ -8,11 +8,9 @@ use Exception;
 /*
  * Base class for implementing https://core.telegram.org/bots/api
  */
-
-// TODO: add more API function handling
-// TODO: handle system messages
 abstract class TelegramPollingBot {
-
+    // TODO: add more API function handling
+    // TODO: handle system messages
     const HOST = 'api.telegram.org';
     const PORT = 443;
     const POLL_TIMEOUT = 30;
@@ -114,8 +112,8 @@ abstract class TelegramPollingBot {
         $text = $message['text'];
 
         if (preg_match('/^\/(?:([a-z0-9]+)(?:(?:[ ]+)(.+?))?)?$/i', $text, $matches)) {
-            $command = 'command_' . $matches[0];
-            $args = isset($matches[1]) ? $matches[1] : null;
+            $command = 'command_' . $matches[1];
+            $args = isset($matches[2]) ? $matches[2] : null;
             $this->runCommand($command, $chat_id, $args);
         }
     }

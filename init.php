@@ -6,7 +6,8 @@ use junkbot\JunkBot;
 
 $config = require(__DIR__ . '/conf.php');
 
-$apiToken = $config['apiToken'];
+$telegramApiToken = $config['telegramApiToken'];
+$currencyApiToken = $config['currencyApiToken'];
 
-$bot = new JunkBot($apiToken);
+$bot = new JunkBot($telegramApiToken, $currencyApiToken);
 $bot->poll();
