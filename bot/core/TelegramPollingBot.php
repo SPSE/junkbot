@@ -8,38 +8,25 @@ use Exception;
 /*
  * Base class for implementing https://core.telegram.org/bots/api
  */
-abstract class TelegramBot {
+
+// TODO: add more API function handling
+// TODO: handle system messages
+abstract class TelegramPollingBot {
 
     const HOST = 'api.telegram.org';
     const PORT = 443;
+    const POLL_TIMEOUT = 30;
 
     private $apiBase;
     private $token;
+    private $offset;
 
     public $botName;
 
-    private $offset;
-
     public function __construct($token) {
         $this->token = $token;
-        $this->apiBase = 'https://' . TelegramBot::HOST . ':' . TelegramBot::PORT . '/bot' . $token;
+        $this->apiBase = 'https://' . TelegramPollingBot::HOST . ':' . TelegramPollingBot::PORT . '/bot' . $token;
         $this->getMe();
-    }
-
-    public function poll() {
-        while(true) {
-            $params = [];
-            if ($this->offset) {
-                $params['offset'] = $this->offset;
-            }
-
-            $response = $this->get('getUpdates', $params);
-            foreach ($response as $update) {
-                $this->offset = $update['update_id'] + 1;
-                $this->processMessage($update['message']);
-            }
-            sleep(2);
-        }
     }
 
     /*
@@ -85,26 +72,76 @@ abstract class TelegramBot {
         return json_decode($resp->body, true)['result'];
     }
 
+    /*
+     * Test connectivity by fetching bot's username
+     */
     private function getMe() {
         $data = $this->get('getMe');
         $this->botName = $data['username'];
     }
 
-    public function setWebhook($url) {
-        $this->post('setWebhook', ['url' => $url]);
-    }
-
+    /*
+     * Send text to target chat_id
+     */
     private function sendMessage($chat_id, $text) {
         $this->post('sendMessage', ['chat_id' => $chat_id, 'text' => $text]);
     }
 
-    public function processMessage($message) {
-        // TODO: process system messages
-        // TODO: make handler for bot commands
-        $chat_id = $message['chat']['id'];
+    /*
+     * Start polling loop
+     */
+    public function poll() {
+        while(true) {
+            $params = [];
+            $params['timeout'] = TelegramPollingBot::POLL_TIMEOUT;
+            if ($this->offset) {
+                $params['offset'] = $this->offset;
+            }
 
-        // Loopback for testing
-        $text = 'TEST:' . $message['text'];
-        $this->sendMessage($chat_id, $text);
+            $response = $this->get('getUpdates', $params);
+            foreach ($response as $update) {
+                $this->offset = $update['update_id'] + 1;
+                $this->processMessage($update['message']);
+            }
+        }
     }
+
+    /*
+     * Process received message
+     */
+    public function processMessage($message) {
+        $chat_id = $message['chat']['id'];
+        $text = $message['text'];
+
+        if (preg_match('/^\/(?:([a-z0-9]+)(?:(?:[ ]+)(.+?))?)?$/i', $text, $matches)) {
+            $command = 'command_' . $matches[0];
+            $args = isset($matches[1]) ? $matches[1] : null;
+            $this->runCommand($command, $chat_id, $args);
+        }
+    }
+
+    /*
+     * Run received command and send reply
+     */
+    private function runCommand($command, $chat_id, $args)
+    {
+        if (method_exists($this, $command)) {
+            $resp = $this->$command($args);
+            $this->sendMessage($chat_id, $resp);
+        }
+    }
+
+    // TODO: remove after testing
+    private function command_loopback($text) {
+        if (isset($text)) {
+            return $text;
+        }
+        else {
+            return "ERROR: must contain text";
+        }
+    }
+
+    // TODO: define some basic functions that must be implemented
+    abstract protected function command_help();
+
 }
