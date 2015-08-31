@@ -11,6 +11,9 @@ use Exception;
 abstract class TelegramPollingBot {
     // TODO: add more API function handling
     // TODO: handle system messages
+
+    use HttpJsonRequest;
+
     const HOST = 'api.telegram.org';
     const PORT = 443;
     const POLL_TIMEOUT = 30;
@@ -31,43 +34,16 @@ abstract class TelegramPollingBot {
      * GET wrapper
      */
     private function get($apiMethod, $params = []) {
-        $url = $this->apiBase . '/' . $apiMethod;
-
-        if ($params) {
-            $url .= '?' . http_build_query($params);
-        }
-
-        $headers = ['Accept' => 'application/json'];
-
-        $resp = Requests::get($url, $headers);
-
-        if ($resp->status_code == 401) {
-            throw new Exception('Invalid access token provided');
-        }
-        else if ($resp->status_code != 200) {
-            throw new Exception("ERROR: Got status code $resp->status_code");
-        }
-
-        return json_decode($resp->body, true)['result'];
+        $endpoint = '/' . $apiMethod;
+        return $this->getJson($endpoint, $params)['result'];
     }
 
     /*
      * POST wrapper
      */
     private function post($apiMethod, $data) {
-        $url = $this->apiBase . '/' . $apiMethod;
-        $headers = ['Accept' => 'application/json'];
-
-        $resp = Requests::post($url, $headers, $data);
-
-        if ($resp->status_code == 401) {
-            throw new Exception('Invalid access token provided');
-        }
-        else if ($resp->status_code != 200) {
-            throw new Exception("ERROR: Got status code $resp->status_code");
-        }
-
-        return json_decode($resp->body, true)['result'];
+        $endpoint = '/' . $apiMethod;
+        return $this->postJson($endpoint, $data)['result'];
     }
 
     /*

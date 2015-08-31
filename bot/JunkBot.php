@@ -25,8 +25,8 @@ class JunkBot extends TelegramPollingBot {
         if (preg_match('/^([0-9]*?) ([A-Za-z]{3}) ([A-Za-z]{3})$/i', $args, $matches)) {
 
             $amount = intval($matches[1]);
-            $from = $matches[2];
-            $to = $matches[3];
+            $from = strtoupper($matches[2]);
+            $to = strtoupper($matches[3]);
             return $this->currency->convert($amount, $from, $to);
         }
         else
