@@ -2,6 +2,7 @@
 
 namespace junkbot;
 
+use junkbot\core\GoogleTimezone;
 use junkbot\core\TelegramPollingBot;
 use junkbot\core\OpenExchangeCurrency;
 
@@ -12,10 +13,13 @@ class JunkBot extends TelegramPollingBot {
 
     // Currency convertion handler
     private $currency;
+    // Time conversion handler
+    private $time;
 
-    public function __construct($telegramApiToken, $currencyApiToken) {
+    public function __construct($telegramApiToken, $currencyApiToken, $timezoneApiToken) {
         parent::__construct($telegramApiToken);
         $this->currency = new OpenExchangeCurrency($currencyApiToken);
+        $this->time = new GoogleTimezone($timezoneApiToken);
     }
 
     /*
@@ -41,5 +45,13 @@ class JunkBot extends TelegramPollingBot {
         {
             return 'Try /currency <amount> <currency_from> <currency_to>';
         }
+    }
+
+    protected function command_time($args) {
+        // TODO: define command format for convert
+        // <loc> <time> ?
+        //$timestamp = strtotime($time);
+        //$this->time->convert($timestamp, $location);
+        return $this->time->getTime($args);
     }
 }
