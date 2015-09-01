@@ -62,12 +62,13 @@ abstract class TelegramPollingBot {
     }
 
     /*
-     * Start polling loop
+     * Start long polling loop to fetch messages from server
      */
     public function poll() {
         while(true) {
             $params = [];
             $params['timeout'] = TelegramPollingBot::POLL_TIMEOUT;
+            // Set offset so we don't fetch old messages repeatedly
             if ($this->offset) {
                 $params['offset'] = $this->offset;
             }
@@ -87,6 +88,11 @@ abstract class TelegramPollingBot {
         $chat_id = $message['chat']['id'];
         $text = $message['text'];
 
+        /*
+         * Parse received message.
+         * Expected format: /<some_command> <command_text>
+         * Output: "some_command", "command_text"
+         */
         if (preg_match('/^\/(?:([a-z0-9]+)(?:(?:[ ]+)(.+?))?)?$/i', $text, $matches)) {
             $command = 'command_' . $matches[1];
             $args = isset($matches[2]) ? $matches[2] : null;
@@ -95,23 +101,13 @@ abstract class TelegramPollingBot {
     }
 
     /*
-     * Run received command and send reply
+     * Lookup if received command exists and run it. Reply with data received from command.
      */
     private function runCommand($command, $chat_id, $args)
     {
         if (method_exists($this, $command)) {
             $resp = $this->$command($args);
             $this->sendMessage($chat_id, $resp);
-        }
-    }
-
-    // TODO: remove after testing
-    private function command_loopback($text) {
-        if (isset($text)) {
-            return $text;
-        }
-        else {
-            return "ERROR: must contain text";
         }
     }
 

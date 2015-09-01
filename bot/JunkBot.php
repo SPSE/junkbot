@@ -5,11 +5,12 @@ namespace junkbot;
 use junkbot\core\TelegramPollingBot;
 use junkbot\core\OpenExchangeCurrency;
 
-
+/*
+ * Junkbot, the bot that does all kinds of junk.
+ */
 class JunkBot extends TelegramPollingBot {
-    // TODO: more useful functions here
-    // Think about worker queue to process requests, e.g. for timer
 
+    // Currency convertion handler
     private $currency;
 
     public function __construct($telegramApiToken, $currencyApiToken) {
@@ -17,13 +18,20 @@ class JunkBot extends TelegramPollingBot {
         $this->currency = new OpenExchangeCurrency($currencyApiToken);
     }
 
+    /*
+     * Help command
+     */
     protected function command_help() {
+        // TODO: add command help here
         return "Welcome to Junkbot.\nPlease enjoy the say!";
     }
 
+    /*
+     * Currency conversion command
+     * Expected input: "<amount> <currency_from> <currency_to>"
+     */
     protected function command_currency($args) {
         if (preg_match('/^([0-9]*?) ([A-Za-z]{3}) ([A-Za-z]{3})$/i', $args, $matches)) {
-
             $amount = intval($matches[1]);
             $from = strtoupper($matches[2]);
             $to = strtoupper($matches[3]);
@@ -31,7 +39,7 @@ class JunkBot extends TelegramPollingBot {
         }
         else
         {
-            return 'Try /currency <amount> <first currency> <second_currency>';
+            return 'Try /currency <amount> <currency_from> <currency_to>';
         }
     }
 }
