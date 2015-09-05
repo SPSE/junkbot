@@ -11,7 +11,7 @@ use junkbot\core\OpenExchangeCurrency;
  */
 class JunkBot extends TelegramPollingBot {
 
-    // Currency convertion handler
+    // Currency conversion handler
     private $currency;
     // Time conversion handler
     private $time;
@@ -27,6 +27,7 @@ class JunkBot extends TelegramPollingBot {
      */
     protected function command_help() {
         // TODO: add command help here
+        // TODO: describe available commands
         return "Welcome to Junkbot.\nPlease enjoy the say!";
     }
 
@@ -41,17 +42,28 @@ class JunkBot extends TelegramPollingBot {
             $to = strtoupper($matches[3]);
             return $this->currency->convert($amount, $from, $to);
         }
-        else
-        {
-            return 'Try /currency <amount> <currency_from> <currency_to>';
-        }
+        return "Try /currency <amount> <currency_from> <currency_to>";
     }
 
+    /*
+     * Time conversion command
+     * Expected input:
+     * - <location>
+     * - <location to> -w <time_from> <location from>
+     * - <location to> when <time_from> <location from>
+     * Time format: 10am, 10:00am, 10 am,
+     */
     protected function command_time($args) {
-        // TODO: define command format for convert
-        // <loc> <time> ?
-        //$timestamp = strtotime($time);
-        //$this->time->convert($timestamp, $location);
-        return $this->time->getTime($args);
+        if (preg_match('/^([a-z ]+)(?: (?:-w|when) ([0-9]{1,2}(?: ?am|pm)|(?:[0-9]{1,2}:[0-9]{2})(?:am|pm)?) ([a-z0-9 ]+))?$/i', $args, $matches)) {
+            $to = $matches[1];
+            // Convert if 3 args are set, otherwise - get
+            if (isset($matches[2])) {
+                $time = $matches[2];
+                $from = $matches[3];
+                return $this->time->convert($time, $from, $to);
+            }
+            return $this->time->getTime($to);
+        }
+        return "Try: \n\t/time <location> \n\t/time <location to> -w <time> <location from> \n\t/time <location to> when <time> <location from>";
     }
 }

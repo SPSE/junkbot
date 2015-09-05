@@ -2,9 +2,6 @@
 
 namespace junkbot\core;
 
-use Requests;
-use Exception;
-
 /*
  * Base class for implementing https://core.telegram.org/bots/api
  */
@@ -113,5 +110,4 @@ abstract class TelegramPollingBot {
 
     // TODO: define some basic functions that must be implemented
     abstract protected function command_help();
-
 }
