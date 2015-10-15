@@ -82,18 +82,20 @@ abstract class TelegramPollingBot {
      * Process received message
      */
     public function processMessage($message) {
-        $chat_id = $message['chat']['id'];
-        $text = $message['text'];
+        if(isset($message['text'])) {
+            $chat_id = $message['chat']['id'];
+            $text = $message['text'];
 
-        /*
-         * Parse received message.
-         * Expected format: /<some_command> <command_text>
-         * Output: "some_command", "command_text"
-         */
-        if (preg_match('/^\/(?:([a-z0-9]+)(?:(?:[ ]+)(.+?))?)?$/i', $text, $matches)) {
-            $command = 'command_' . $matches[1];
-            $args = isset($matches[2]) ? $matches[2] : null;
-            $this->runCommand($command, $chat_id, $args);
+            /*
+             * Parse received message.
+             * Expected format: /<some_command> <command_text>
+             * Output: "some_command", "command_text"
+             */
+            if (preg_match('/^\/(?:([a-z0-9]+)(?:(?:[ ]+)(.+?))?)?$/i', $text, $matches)) {
+                $command = 'command_' . $matches[1];
+                $args = isset($matches[2]) ? $matches[2] : null;
+                $this->runCommand($command, $chat_id, $args);
+            }
         }
     }
 

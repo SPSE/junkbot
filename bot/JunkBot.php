@@ -23,12 +23,30 @@ class JunkBot extends TelegramPollingBot {
     }
 
     /*
+     * Start command
+     */
+    protected function command_start() {
+        // TODO: add bot description
+        return "Welcome to Junkbot.\nPlease enjoy the say!";
+    }
+
+    /*
      * Help command
      */
     protected function command_help() {
         // TODO: add command help here
         // TODO: describe available commands
-        return "Welcome to Junkbot.\nPlease enjoy the say!";
+        return <<< EOT
+            Available commands:
+
+            /currency <amount> <currency_from> <currency_to>
+            /help
+            /time <location>
+            /time <location to> -w <time_from> <location from>
+            /time <location to> when <time_from> <location from>
+
+            Time format: 10am, 10:00am, 10 am
+EOT;
     }
 
     /*
@@ -54,7 +72,7 @@ class JunkBot extends TelegramPollingBot {
      * Time format: 10am, 10:00am, 10 am,
      */
     protected function command_time($args) {
-        if (preg_match('/^([a-z ]+)(?: (?:-w|when) ([0-9]{1,2}(?: ?am|pm)|(?:[0-9]{1,2}:[0-9]{2})(?:am|pm)?) ([a-z0-9 ]+))?$/i', $args, $matches)) {
+        if (preg_match('/^([\-a-z ]+)(?: (?:-w|when) ([0-9]{1,2}(?: ?am|pm)|(?:[0-9]{1,2}:[0-9]{2})(?:am|pm)?) ([a-z\- ]+))?$/i', $args, $matches)) {
             $to = $matches[1];
             // Convert if 3 args are set, otherwise - get
             if (isset($matches[2])) {

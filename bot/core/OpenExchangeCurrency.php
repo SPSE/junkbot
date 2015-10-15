@@ -32,7 +32,7 @@ class OpenExchangeCurrency {
              * Calculate converted amount
              * Since rates use base USD currency we first convert <from> to USD, then USD to <to>
              */
-            $result = round($amount / $rates[$from] * $rates[$to], 2);
+            $result = round($amount / $rates[$from] * $rates[$to], 4);
             return "$amount $from is $result $to";
         }
         return "Invalid currency name";

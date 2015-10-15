@@ -8,6 +8,7 @@ namespace junkbot\core;
  */
 trait Cacheable {
 
+    // Cache storage (key-value)
     private $cache;
 
     // Time to keep cache. Must be set in classes that use this.
@@ -22,7 +23,7 @@ trait Cacheable {
          * Key is a md5 hash from function name + args
          * If args is an array first glue it into one string
          */
-        $key = is_array($args) ? md5($function[1] . implode($args)) : md5($function[1]);
+        $key = is_array($args) ? md5($function[1] . implode($args)) : md5($function[1] . $args);
         // Check if there is already a valid cached value
         if ($this->isValid($key))
         {
@@ -51,6 +52,7 @@ trait Cacheable {
      * Get value from cache
      */
     private function getCachedValue($key) {
+        // 0 index because 1 is timestamp
         return $this->cache[$key][0];
     }
 
